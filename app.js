@@ -3,16 +3,52 @@
 const C = window.CONTENT;
 const D = window.DEEP;
 
-// Timezone select
-const tzSel = document.getElementById('tz');
-for (let o = -12; o <= 14; o += 0.5) {
+// Country / region selects
+const countrySel = document.getElementById('country');
+const regionSel = document.getElementById('region');
+const regionRow = document.getElementById('region-row');
+
+Object.keys(window.ZONES).sort().forEach(c => {
   const opt = document.createElement('option');
-  const h = Math.trunc(o), m = Math.abs(o % 1) * 60;
-  opt.value = o;
-  opt.textContent = `UTC${o >= 0 ? '+' : '−'}${String(Math.abs(h)).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-  tzSel.appendChild(opt);
+  opt.value = c; opt.textContent = c;
+  countrySel.appendChild(opt);
+});
+
+function syncRegions() {
+  const val = window.ZONES[countrySel.value];
+  regionSel.innerHTML = '';
+  if (typeof val === 'object') {
+    Object.keys(val).forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = val[r]; opt.textContent = r;
+      regionSel.appendChild(opt);
+    });
+    regionRow.style.display = '';
+  } else {
+    regionRow.style.display = 'none';
+  }
 }
-tzSel.value = -(new Date().getTimezoneOffset()) / 60;
+countrySel.addEventListener('change', syncRegions);
+
+// Preselect the visitor's country from their browser timezone
+(() => {
+  const browserZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  for (const [country, val] of Object.entries(window.ZONES)) {
+    const zones = typeof val === 'object' ? Object.values(val) : [val];
+    if (zones.includes(browserZone)) {
+      countrySel.value = country;
+      syncRegions();
+      if (typeof val === 'object') regionSel.value = browserZone;
+      return;
+    }
+  }
+  syncRegions();
+})();
+
+function selectedZone() {
+  const val = window.ZONES[countrySel.value];
+  return typeof val === 'object' ? regionSel.value : val;
+}
 
 document.getElementById('hd-form').addEventListener('submit', (e) => {
   e.preventDefault();
@@ -23,7 +59,8 @@ document.getElementById('hd-form').addEventListener('submit', (e) => {
   const [h, mi] = timeVal.split(':').map(Number);
   const name = document.getElementById('bname').value.trim();
 
-  const chart = HD.computeChart({ year: y, month: mo, day: d, hour: h, minute: mi, tzOffset: Number(tzSel.value) });
+  const tzOffset = window.tzOffsetHours(selectedZone(), y, mo, d, h, mi);
+  const chart = HD.computeChart({ year: y, month: mo, day: d, hour: h, minute: mi, tzOffset });
   render(chart, name);
   document.getElementById('results').classList.add('visible');
   document.getElementById('results').scrollIntoView();

@@ -28,7 +28,7 @@
       <div class="field-row">
         <div class="field">
           <label for="bname">First name (optional)</label>
-          <input type="text" id="bname" placeholder="e.g. Leon" autocomplete="off">
+          <input type="text" id="bname" placeholder="e.g. Sarah" autocomplete="off">
         </div>
         <div class="field">
           <label for="bdate">Date of birth</label>
@@ -41,8 +41,14 @@
           <input type="time" id="btime" value="12:00">
         </div>
         <div class="field">
-          <label for="tz">Birthplace time zone</label>
-          <select id="tz"></select>
+          <label for="country">Country of birth</label>
+          <select id="country" required></select>
+        </div>
+      </div>
+      <div class="field-row" id="region-row" style="display:none">
+        <div class="field" style="grid-column: 1 / -1">
+          <label for="region">Region of birth</label>
+          <select id="region"></select>
         </div>
       </div>
       <button type="submit" class="btn-primary">Reveal my design <span>→</span></button>
@@ -126,6 +132,7 @@
   <p>Blueprint calculates planetary positions in your browser using standard astronomical algorithms. Human Design is a self-reflection framework, not science or medical advice — take what resonates, experiment, and leave the rest.</p>
 </footer>
 
+<script src="timezones.js"></script>
 <script src="hd-engine.js"></script>
 <script src="content.js"></script>
 <script src="content-deep.js"></script>
