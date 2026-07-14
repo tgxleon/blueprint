@@ -1,4 +1,4 @@
-/* Innerprint — interpretive content */
+/* Blueprint — interpretive content */
 
 window.CONTENT = {
   types: {

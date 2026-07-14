@@ -1,4 +1,4 @@
-/* Innerprint — UI */
+/* Blueprint — UI */
 
 const C = window.CONTENT;
 const D = window.DEEP;

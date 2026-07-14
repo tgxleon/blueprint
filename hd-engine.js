@@ -1,4 +1,4 @@
-/* Innerprint — Human Design calculation engine.
+/* Blueprint — Human Design calculation engine.
    Planetary positions via JPL approximate Keplerian elements (valid 1800–2050),
    Moon via truncated Meeus series. Accuracy is well within one gate (5.625°). */
 

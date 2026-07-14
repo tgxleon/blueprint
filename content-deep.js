@@ -1,4 +1,4 @@
-/* Innerprint — deep report content: centers (defined & open), channels, alignment lists, closing synthesis */
+/* Blueprint — deep report content: centers (defined & open), channels, alignment lists, closing synthesis */
 
 window.DEEP = {
 
