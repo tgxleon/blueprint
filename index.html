@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Innerprint — Your inner blueprint, decoded</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="#">Inner<em>print</em></a>
+    <span class="nav-label">Human Design · Decoded</span>
+  </div>
+</nav>
+
+<header class="hero">
+  <span class="eyebrow">Free chart · No account needed</span>
+  <h1>Meet the you<br>you were <em>designed</em> to be</h1>
+  <p class="sub">Your birth moment holds a blueprint — how your energy works, how you're built to decide, and why some paths feel like pushing uphill. Enter your details and read yours.</p>
+
+  <div class="input-card">
+    <h2>Your birth details</h2>
+    <form id="hd-form">
+      <div class="field-row">
+        <div class="field">
+          <label for="bname">First name (optional)</label>
+          <input type="text" id="bname" placeholder="e.g. Leon" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="bdate">Date of birth</label>
+          <input type="date" id="bdate" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="btime">Time of birth</label>
+          <input type="time" id="btime" value="12:00">
+        </div>
+        <div class="field">
+          <label for="tz">Birthplace time zone</label>
+          <select id="tz"></select>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary">Reveal my design <span>→</span></button>
+      <p class="hint">Don't know your exact time? Leave it at 12:00 — your type and most of your chart usually stay the same. Everything is calculated in your browser; nothing is stored or sent anywhere.</p>
+    </form>
+  </div>
+</header>
+
+<main id="results">
+  <div class="container">
+
+    <section class="block">
+      <div class="section-label">Your Report</div>
+      <h2 class="display" id="res-title"></h2>
+      <div class="meaning-grid" id="letter"></div>
+    </section>
+
+    <section class="block">
+      <div class="section-label">Your Summary · Foundational Properties</div>
+      <h2 class="display">Your unique <em>blueprint</em></h2>
+      <div class="tile-grid" id="tiles"></div>
+      <div style="text-align:center; margin-top:32px">
+        <button class="btn-primary" id="print-btn">Save as PDF <span>→</span></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="section-label">Your Bodygraph</div>
+      <h2 class="display">Nine centers, one <em>circuit</em></h2>
+      <div class="graph-wrap">
+        <div id="bodygraph"></div>
+        <div class="graph-legend">
+          <span><span class="dot" style="background:var(--color-iris-gleam)"></span>Defined center</span>
+          <span><span class="dot" style="border:1px solid #3f4041"></span>Open center</span>
+          <span><span class="dot" style="background:var(--color-cyan-signal)"></span>Active channel</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="section-label">01 · The Basics</div>
+      <h2 class="display">Reading your <em>design</em></h2>
+      <div class="meaning-grid" id="meaning"></div>
+    </section>
+
+    <section class="block">
+      <div class="section-label">Your Life, Applied</div>
+      <h2 class="display">Where this meets your <em>daily life</em></h2>
+      <div class="life-grid" id="life"></div>
+    </section>
+
+    <section class="block">
+      <div class="section-label">02 · Your Nine Centers</div>
+      <h2 class="display">Consistent gifts &amp; open <em>wisdom</em></h2>
+      <div class="meaning-grid" id="centers"></div>
+    </section>
+
+    <section class="block">
+      <div class="section-label">03 · Your Channels</div>
+      <h2 class="display">The pathways of your <em>life force</em></h2>
+      <div class="meaning-grid" id="channels"></div>
+    </section>
+
+    <section class="block">
+      <div class="section-label">04 · Echoes of Wisdom</div>
+      <h2 class="display">A closing <em>letter</em></h2>
+      <div class="meaning-grid" id="closing"></div>
+    </section>
+
+    <section class="block">
+      <div class="section-label">The Fine Print</div>
+      <h2 class="display">Your planetary <em>activations</em></h2>
+      <div class="gate-tables" id="gates"></div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <a class="logo" href="#">Inner<em>print</em></a>
+  <p>Innerprint calculates planetary positions in your browser using standard astronomical algorithms. Human Design is a self-reflection framework, not science or medical advice — take what resonates, experiment, and leave the rest.</p>
+</footer>
+
+<script src="hd-engine.js"></script>
+<script src="content.js"></script>
+<script src="content-deep.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
