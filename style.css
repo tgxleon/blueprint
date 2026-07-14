@@ -165,21 +165,20 @@ h2.display em { font-style: italic; }
   position: relative;
 }
 .tile.inverted .tip { border-bottom-color: rgba(0,0,0,0.35); }
-.tip::after {
-  content: attr(data-tip);
-  position: absolute; left: 0; top: calc(100% + 10px);
+#tooltip {
+  position: fixed; z-index: 9999;
   width: min(300px, 68vw);
-  background: var(--color-void); color: var(--color-cloud);
-  border: 1px solid rgba(255,255,255,0.18); border-radius: 12px;
+  background-color: #0b0c0e; color: var(--color-cloud);
+  border: 1px solid rgba(255,255,255,0.22); border-radius: 12px;
   padding: 12px 14px;
   font-family: var(--font-sans); font-size: 13px; font-weight: 300;
   line-height: 1.55; letter-spacing: normal; text-transform: none;
   opacity: 0; visibility: hidden; transform: translateY(4px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 30; pointer-events: none;
-  box-shadow: rgba(0, 0, 0, 0.4) 0px 18px 20px 0px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  box-shadow: rgba(0, 0, 0, 0.55) 0px 18px 24px 0px;
 }
-.tip:hover::after, .tip:focus::after { opacity: 1; visibility: visible; transform: none; }
+#tooltip.show { opacity: 1; visibility: visible; transform: none; }
 
 /* ---- Bodygraph ---- */
 .graph-wrap {

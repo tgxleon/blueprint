@@ -68,6 +68,34 @@ document.getElementById('hd-form').addEventListener('submit', (e) => {
 
 document.getElementById('print-btn').addEventListener('click', () => window.print());
 
+// ---- Tooltip (single fixed element; immune to stacking contexts) ----
+const tooltipEl = document.createElement('div');
+tooltipEl.id = 'tooltip';
+document.body.appendChild(tooltipEl);
+
+function showTip(target) {
+  tooltipEl.textContent = target.dataset.tip;
+  tooltipEl.classList.add('show');
+  const r = target.getBoundingClientRect();
+  const tw = tooltipEl.offsetWidth, th = tooltipEl.offsetHeight;
+  let x = Math.min(Math.max(8, r.left), window.innerWidth - tw - 8);
+  let y = r.bottom + 10;
+  if (y + th > window.innerHeight - 8) y = r.top - th - 10;
+  tooltipEl.style.left = x + 'px';
+  tooltipEl.style.top = y + 'px';
+}
+function hideTip() { tooltipEl.classList.remove('show'); }
+
+document.addEventListener('mouseover', (e) => {
+  const t = e.target.closest('.tip');
+  if (t) showTip(t); else hideTip();
+});
+document.addEventListener('focusin', (e) => {
+  const t = e.target.closest('.tip');
+  if (t) showTip(t); else hideTip();
+});
+window.addEventListener('scroll', hideTip, { passive: true });
+
 function jdToDateStr(jd) {
   const ms = (jd - 2440587.5) * 86400000;
   return new Date(ms).toISOString().slice(0, 16).replace('T', ' @ ') + ' UTC';
