@@ -158,6 +158,29 @@ h2.display em { font-style: italic; }
 .tile.inverted { background: var(--color-silver); color: var(--color-void); }
 .tile.inverted .t-label { color: #3a3a3a; }
 
+/* ---- Tooltips ---- */
+.tip {
+  cursor: help;
+  border-bottom: 1px dotted rgba(255,255,255,0.35);
+  position: relative;
+}
+.tile.inverted .tip { border-bottom-color: rgba(0,0,0,0.35); }
+.tip::after {
+  content: attr(data-tip);
+  position: absolute; left: 0; top: calc(100% + 10px);
+  width: min(300px, 68vw);
+  background: var(--color-void); color: var(--color-cloud);
+  border: 1px solid rgba(255,255,255,0.18); border-radius: 12px;
+  padding: 12px 14px;
+  font-family: var(--font-sans); font-size: 13px; font-weight: 300;
+  line-height: 1.55; letter-spacing: normal; text-transform: none;
+  opacity: 0; visibility: hidden; transform: translateY(4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 30; pointer-events: none;
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 18px 20px 0px;
+}
+.tip:hover::after, .tip:focus::after { opacity: 1; visibility: visible; transform: none; }
+
 /* ---- Bodygraph ---- */
 .graph-wrap {
   background: var(--color-abyss); border-radius: 30px;

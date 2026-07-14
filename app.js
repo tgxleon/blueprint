@@ -100,43 +100,49 @@ function render(chart, name) {
   // Summary tiles + foundational properties
   const pSun = chart.personality[0], pEarth = chart.personality[1];
   const dSun = chart.design[0], dEarth = chart.design[1];
+  const tip = (text, tipText) => `<span class="tip" tabindex="0" data-tip="${esc(tipText)}">${text}</span>`;
+  const angleTips = {
+    'Right Angle Cross': 'A personal-destiny cross (~64% of people): your life theme unfolds primarily through your own journey and experiences.',
+    'Left Angle Cross': 'A transpersonal cross (~33% of people): your life theme unfolds through the people you encounter — your purpose is entangled with others.',
+    'Juxtaposition Cross': 'A rare fixed cross (~3% of people): your life theme runs on its own singular track, neither purely personal nor transpersonal.',
+  };
   document.getElementById('tiles').innerHTML = `
     <div class="tile" style="background:${t.color}; color:${chart.type === 'Reflector' ? '#1a1a2e' : '#fff'}">
-      <span class="t-label">Energy Type</span>
-      <div><div class="t-value">${chart.type}</div><div class="t-sub">${t.essence.split('.')[0]}.</div></div>
+      <span class="t-label">${tip('Energy Type', 'One of five ways human energy is configured. Your type describes how your energy flows, how you best engage the world — whether you\'re built to initiate, respond, guide, or reflect — and what it costs you to work against that.')}</span>
+      <div><div class="t-value">${tip(chart.type, TYPE_TIPS[chart.type])}</div><div class="t-sub">${t.essence.split('.')[0]}.</div></div>
     </div>
     <div class="tile dark">
-      <span class="t-label">Strategy</span>
-      <div><div class="t-value">${t.strategy}</div><div class="t-sub">How opportunities are designed to reach you.</div></div>
+      <span class="t-label">${tip('Strategy', 'The practical rule of thumb that follows from your type: how to enter opportunities, relationships, and decisions with the least resistance. Following it aligns you with what\'s genuinely meant for you.')}</span>
+      <div><div class="t-value">${tip(t.strategy, STRATEGY_TIPS[chart.type])}</div><div class="t-sub">How opportunities are designed to reach you.</div></div>
     </div>
     <div class="tile dark">
-      <span class="t-label">Authority</span>
-      <div><div class="t-value">${chart.authority}</div><div class="t-sub">Your built-in decision compass.</div></div>
+      <span class="t-label">${tip('Authority', 'Your body\'s built-in decision-making system — the part of you designed to know what\'s correct for you. It\'s almost never the mind; the mind is for thinking, your authority is for deciding.')}</span>
+      <div><div class="t-value">${tip(chart.authority, auth.text.split('.').slice(0, 2).join('.') + '.')}</div><div class="t-sub">Your built-in decision compass.</div></div>
     </div>
     <div class="tile inverted">
-      <span class="t-label">Profile</span>
-      <div><div class="t-value">${chart.profile}</div><div class="t-sub">${prof[0]}</div></div>
+      <span class="t-label">${tip('Profile', 'Your learning-and-living style, written as two numbers: how your conscious personality operates (first) and how your unconscious design operates (second). Together they describe the costume your purpose wears.')}</span>
+      <div><div class="t-value">${tip(chart.profile, prof[1])}</div><div class="t-sub">${prof[0]}</div></div>
     </div>
     <div class="tile dark">
-      <span class="t-label">Definition</span>
-      <div><div class="t-value">${chart.definition.replace(' Definition','')}</div><div class="t-sub">${C.definitions[chart.definition].split('.')[0]}.</div></div>
+      <span class="t-label">${tip('Definition', 'How the defined centers in your chart connect to each other — in one continuous circuit or several separate ones. It shapes whether you process life independently or need others to feel complete.')}</span>
+      <div><div class="t-value">${tip(chart.definition.replace(' Definition',''), C.definitions[chart.definition])}</div><div class="t-sub">${C.definitions[chart.definition].split('.')[0]}.</div></div>
     </div>
     <div class="tile dark">
-      <span class="t-label">Signature · Not-Self</span>
-      <div><div class="t-value">${t.signature}</div><div class="t-sub">On track you feel ${t.signature.toLowerCase()}; off track, ${t.notSelf.toLowerCase()}.</div></div>
+      <span class="t-label">${tip('Signature · Not-Self', 'Your two emotional feedback signals. The signature is how alignment feels for your type; the not-self theme is the feeling that tells you you\'ve been living against your design.')}</span>
+      <div><div class="t-value">${tip(t.signature, `${t.signature} is your signature — the felt proof you\'re living your design. Its opposite, ${t.notSelf.toLowerCase()}, is your not-self theme: when it becomes chronic, return to your strategy and authority.`)}</div><div class="t-sub">On track you feel ${t.signature.toLowerCase()}; off track, ${t.notSelf.toLowerCase()}.</div></div>
     </div>
     <div class="tile dark">
-      <span class="t-label">Incarnation Cross</span>
-      <div><div class="t-value" style="font-size:26px">${crossAngle(chart.profile)}</div>
+      <span class="t-label">${tip('Incarnation Cross', 'Your overarching life theme, woven from your four most important gates: the Sun and Earth positions at birth (personality) and at the design moment. It describes the flavor of purpose your life keeps circling back to.')}</span>
+      <div><div class="t-value" style="font-size:26px">${tip(crossAngle(chart.profile), angleTips[crossAngle(chart.profile)])}</div>
       <div class="t-sub">(${pSun.gate}/${pEarth.gate} | ${dSun.gate}/${dEarth.gate}) — the life theme woven from your Sun and Earth gates.</div></div>
     </div>
     <div class="tile dark">
-      <span class="t-label">Birth · Design</span>
+      <span class="t-label">${tip('Birth · Design', 'Your chart is calculated twice: at birth (your conscious personality — the you that you know) and ~88 days earlier when the Sun was 88° back (your unconscious design — inherited traits others see in you but you don\'t).')}</span>
       <div><div class="t-value" style="font-size:26px">Two moments</div>
       <div class="t-sub">Personality: ${jdToDateStr(chart.birthJD)}<br>Design: ${jdToDateStr(chart.desJD)}</div></div>
     </div>
     <div class="tile dark">
-      <span class="t-label">Defined Centers</span>
+      <span class="t-label">${tip('Defined Centers', 'The nine centers are energy hubs (like chakras). Colored-in (defined) centers are your consistent, reliable traits; open centers are where you take in and amplify others — your places of sensitivity and wisdom.')}</span>
       <div><div class="t-value" style="font-size:26px">${defined.size} of 9</div>
       <div class="t-sub">${defined.size === 0 ? 'Fully open — a pure mirror.' : [...defined].map(c => C.centers[c][0]).join(' · ')}</div></div>
     </div>`;
@@ -229,6 +235,21 @@ function render(chart, name) {
     <div class="gate-table pers"><h4>Personality · Conscious (birth)</h4><table>${chart.personality.map(row).join('')}</table></div>
     <div class="gate-table des"><h4>Design · Unconscious (~88° of sun arc prior)</h4><table>${chart.design.map(row).join('')}</table></div>`;
 }
+
+const TYPE_TIPS = {
+  'Generator': 'The builder type (~37% of people). A defined Sacral center gives you sustainable life-force energy that renews itself when spent on work you genuinely love.',
+  'Manifesting Generator': 'A hybrid builder-initiator (~33% of people). Sacral power plus a motor connected to the Throat: multi-passionate, fast, built to skip steps.',
+  'Projector': 'The guide type (~20% of people). No Sacral motor — your gift is penetrating insight into others and systems, designed to be shared where it\'s recognized and invited.',
+  'Manifestor': 'The initiator type (~9% of people). A motor connected to the Throat lets you go from impulse to action without waiting for anyone — you open doors others walk through.',
+  'Reflector': 'The rarest type (~1% of people). No defined centers: you sample and mirror your environment, making you a living barometer of your community\'s health.',
+};
+const STRATEGY_TIPS = {
+  'Generator': 'Instead of initiating cold, let life bring you things — then trust your gut\'s yes or no. Committing only to what your body responds to keeps your energy renewable.',
+  'Manifesting Generator': 'Let life bring you options, trust your gut\'s response, then move at full speed — and give the people affected a quick heads-up before you leap.',
+  'Projector': 'Your guidance lands when it\'s asked for. For big moves — jobs, relationships, cities — wait for genuine recognition and invitation rather than chasing.',
+  'Manifestor': 'You don\'t need permission — but informing the people in your impact zone before you act melts the resistance your initiating naturally creates.',
+  'Reflector': 'For major decisions, wait a full lunar cycle (~28 days). Clarity comes to you over time and through conversations, never in the moment.',
+};
 
 function aOrAn(w) { return /^[aeiou]/i.test(w) ? 'an' : 'a'; }
 function esc(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
