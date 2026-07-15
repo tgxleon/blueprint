@@ -41,6 +41,13 @@ body {
 
 .container { max-width: var(--page-max-width); margin: 0 auto; padding: 0 24px; }
 
+/* ---- Ambient particle field ---- */
+#particle-field {
+  position: fixed; inset: 0;
+  z-index: 0; pointer-events: none;
+}
+nav, .hero, main, footer { position: relative; z-index: 1; }
+
 /* ---- Nav ---- */
 nav {
   position: sticky; top: 0; z-index: 50;
@@ -67,7 +74,8 @@ nav {
 .hero {
   text-align: center;
   padding: 110px 24px 70px;
-  background: linear-gradient(rgb(15,16,17), rgb(19,29,39) 55%, rgb(23,32,58) 85%, rgb(15,16,17));
+  /* transparent: the ambient particle field is the hero's backdrop */
+  background: transparent;
 }
 .eyebrow {
   display: inline-block;
@@ -288,7 +296,7 @@ footer .logo { display: inline-block; margin-bottom: 16px; }
 @keyframes reveal { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 
 @media print {
-  nav, .hero, footer, #print-btn { display: none !important; }
+  nav, .hero, footer, #print-btn, #particle-field { display: none !important; }
   body { background: #fff; color: #333; }
   #results { display: block !important; }
   .card, .tile, .life-tile, .graph-wrap, .gate-table, .center-report {
