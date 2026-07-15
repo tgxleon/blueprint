@@ -282,51 +282,115 @@ const STRATEGY_TIPS = {
 function aOrAn(w) { return /^[aeiou]/i.test(w) ? 'an' : 'a'; }
 function esc(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-// ---- Simplified bodygraph SVG ----
-const CENTER_POS = {
-  head:   [200, 50],  ajna: [200, 145], throat: [200, 250], g: [200, 360],
-  heart:  [305, 405], spleen: [72, 480], sacral: [200, 490], solar: [328, 480], root: [200, 590],
-};
-const CENTER_SHAPE = {
-  head: 'tri-up', ajna: 'tri-down', throat: 'square', g: 'diamond',
-  heart: 'tri-up', spleen: 'tri-right', sacral: 'square', solar: 'tri-left', root: 'square',
+// ---- Bodygraph SVG (gate-level, classic layout) ----
+
+// Anchor position of each of the 64 gates inside its center
+const GATE_POS = {
+  // Head
+  64: [225, 82], 61: [250, 82], 63: [275, 82],
+  // Ajna
+  47: [225, 128], 24: [250, 128], 4: [275, 128], 17: [230, 152], 11: [270, 152], 43: [250, 174],
+  // Throat
+  62: [225, 237], 23: [250, 237], 56: [275, 237], 16: [222, 258], 35: [278, 258],
+  20: [222, 278], 12: [278, 278], 45: [278, 296], 31: [225, 308], 8: [250, 308], 33: [275, 308],
+  // G
+  1: [250, 357], 7: [228, 378], 13: [272, 378], 10: [212, 395], 25: [288, 395],
+  15: [230, 414], 46: [270, 414], 2: [250, 434],
+  // Heart
+  21: [335, 441], 51: [322, 452], 40: [347, 452], 26: [333, 465],
+  // Spleen
+  48: [55, 517], 57: [70, 529], 44: [80, 541], 50: [80, 553], 32: [70, 565], 28: [55, 577], 18: [40, 589],
+  // Sacral
+  5: [225, 517], 14: [250, 517], 29: [275, 517], 34: [222, 540], 59: [278, 540],
+  27: [222, 562], 42: [225, 575], 3: [250, 575], 9: [275, 575],
+  // Solar Plexus
+  36: [445, 517], 22: [430, 529], 37: [420, 541], 6: [420, 553], 49: [430, 565], 55: [445, 577], 30: [460, 589],
+  // Root
+  53: [225, 657], 60: [250, 657], 52: [275, 657], 54: [222, 680], 38: [222, 698],
+  58: [222, 714], 19: [278, 680], 39: [278, 698], 41: [278, 714],
 };
 
-function shapePath(kind, x, y, s = 34) {
-  switch (kind) {
-    case 'tri-up': return `M ${x} ${y - s} L ${x + s} ${y + s * 0.7} L ${x - s} ${y + s * 0.7} Z`;
-    case 'tri-down': return `M ${x} ${y + s} L ${x + s} ${y - s * 0.7} L ${x - s} ${y - s * 0.7} Z`;
-    case 'tri-right': return `M ${x + s} ${y} L ${x - s * 0.7} ${y - s} L ${x - s * 0.7} ${y + s} Z`;
-    case 'tri-left': return `M ${x - s} ${y} L ${x + s * 0.7} ${y - s} L ${x + s * 0.7} ${y + s} Z`;
-    case 'diamond': return `M ${x} ${y - s * 1.15} L ${x + s * 1.15} ${y} L ${x} ${y + s * 1.15} L ${x - s * 1.15} ${y} Z`;
-    default: return `M ${x - s} ${y - s} h ${2 * s} v ${2 * s} h ${-2 * s} Z`;
-  }
+// Quadratic control points for channels that curve around the body (key: "lo-hi")
+const CHANNEL_BEND = {
+  '16-48': [140, 340], '20-57': [130, 360], '10-20': [165, 330], '10-34': [165, 470],
+  '10-57': [130, 470], '20-34': [140, 410], '34-57': [140, 555], '27-50': [150, 575],
+  '26-44': [200, 512], '32-54': [115, 660], '28-38': [105, 680], '18-58': [95, 700],
+  '35-36': [360, 340], '12-22': [350, 360], '21-45': [330, 355], '25-51': [306, 418],
+  '37-40': [392, 482], '6-59': [350, 560], '19-49': [385, 660], '39-55': [400, 690], '30-41': [410, 705],
+};
+
+const CENTER_SHAPES = {
+  head:   'M 250 25 L 295 95 L 205 95 Z',
+  ajna:   'M 205 115 L 295 115 L 250 190 Z',
+  throat: 'M 218 225 h 64 q 10 0 10 10 v 75 q 0 10 -10 10 h -64 q -10 0 -10 -10 v -75 q 0 -10 10 -10 Z',
+  g:      'M 250 335 L 310 395 L 250 455 L 190 395 Z',
+  heart:  'M 308 433 L 362 433 L 337 479 Z',
+  spleen: 'M 30 495 L 135 547 L 30 600 Z',
+  solar:  'M 470 495 L 365 547 L 470 600 Z',
+  sacral: 'M 218 505 h 64 q 10 0 10 10 v 60 q 0 10 -10 10 h -64 q -10 0 -10 -10 v -60 q 0 -10 10 -10 Z',
+  root:   'M 218 645 h 64 q 10 0 10 10 v 60 q 0 10 -10 10 h -64 q -10 0 -10 -10 v -60 q 0 -10 10 -10 Z',
+};
+
+const CENTER_LABELS = {
+  head: [250, 14, 'middle'], ajna: [308, 152, 'start'], throat: [304, 272, 'start'],
+  g: [180, 380, 'end'], heart: [372, 452, 'start'], spleen: [30, 622, 'start'],
+  solar: [470, 622, 'end'], sacral: [304, 547, 'start'], root: [250, 745, 'middle'],
+};
+
+function channelPath(a, b) {
+  const [x1, y1] = GATE_POS[a], [x2, y2] = GATE_POS[b];
+  const key = [a, b].sort((m, n) => m - n).join('-');
+  const c = CHANNEL_BEND[key];
+  return c ? `M ${x1} ${y1} Q ${c[0]} ${c[1]} ${x2} ${y2}` : `M ${x1} ${y1} L ${x2} ${y2}`;
 }
 
 function drawBodygraph(chart) {
   const defined = new Set(chart.definedCenters);
-  const seenPairs = new Set();
-  let lines = '';
-  chart.activeChannels.forEach(([a, b]) => {
-    const ca = HD.GATE_CENTER[a], cb = HD.GATE_CENTER[b];
-    const key = [ca, cb].sort().join('-');
-    const [x1, y1] = CENTER_POS[ca], [x2, y2] = CENTER_POS[cb];
-    const off = seenPairs.has(key) ? 7 : 0;
-    seenPairs.add(key);
-    lines += `<line x1="${x1 + off}" y1="${y1}" x2="${x2 + off}" y2="${y2}" stroke="var(--color-cyan-signal)" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
-      <text x="${(x1 + x2) / 2 + off + 6}" y="${(y1 + y2) / 2 - 4}" fill="#6a6b6b" font-family="Roboto Mono" font-size="9">${a}-${b}</text>`;
+  const pers = new Set(chart.personality.map(a => a.gate));
+  const des = new Set(chart.design.map(a => a.gate));
+  const activeChannelKeys = new Set(chart.activeChannels.map(([a, b]) => [a, b].sort((m, n) => m - n).join('-')));
+
+  // 1. All 36 channels as faint wiring; active ones highlighted
+  let wires = '', activeWires = '';
+  HD.CHANNELS.forEach(([a, b]) => {
+    const d = channelPath(a, b);
+    const key = [a, b].sort((m, n) => m - n).join('-');
+    if (activeChannelKeys.has(key)) {
+      activeWires += `<path d="${d}" fill="none" stroke="var(--color-cyan-signal)" stroke-width="4" stroke-linecap="round" opacity="0.95"/>`;
+    } else {
+      wires += `<path d="${d}" fill="none" stroke="#2a2b2d" stroke-width="2" stroke-linecap="round"/>`;
+    }
   });
 
+  // 2. Center shapes on top of the wiring
   let shapes = '';
-  Object.keys(CENTER_POS).forEach(c => {
-    const [x, y] = CENTER_POS[c];
+  Object.entries(CENTER_SHAPES).forEach(([c, d]) => {
     const isDef = defined.has(c);
-    shapes += `<path d="${shapePath(CENTER_SHAPE[c], x, y)}" fill="${isDef ? 'var(--color-iris-gleam)' : 'none'}"
-      stroke="${isDef ? 'var(--color-iris-gleam)' : '#3f4041'}" stroke-width="1.5"/>
-      <text x="${x}" y="${y + 58}" text-anchor="middle" fill="${isDef ? '#d1c9ff' : '#6a6b6b'}"
-        font-family="Roboto Mono" font-size="10" letter-spacing="1.5">${C.centers[c][0].toUpperCase()}</text>`;
+    shapes += `<path d="${d}" fill="${isDef ? 'var(--color-iris-gleam)' : '#131416'}"
+      stroke="${isDef ? 'var(--color-iris-gleam)' : '#3f4041'}" stroke-width="1.5"/>`;
+    const [lx, ly, anchor] = CENTER_LABELS[c];
+    shapes += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" fill="${isDef ? '#d1c9ff' : '#6a6b6b'}"
+      font-family="Roboto Mono" font-size="9" letter-spacing="1.5">${C.centers[c][0].toUpperCase()}</text>`;
+  });
+
+  // 3. Gate numbers: activated gates get a filled badge (white = personality,
+  //    pink = design, ringed white = both); the rest stay quiet
+  let gates = '';
+  Object.entries(GATE_POS).forEach(([g, [x, y]]) => {
+    const gate = Number(g);
+    const inP = pers.has(gate), inD = des.has(gate);
+    const onDef = defined.has(HD.GATE_CENTER[gate]);
+    if (inP || inD) {
+      const fill = inP ? '#ffffff' : 'var(--color-orchid-bloom)';
+      const ring = inP && inD ? `stroke="var(--color-orchid-bloom)" stroke-width="2.5"` : `stroke="none"`;
+      gates += `<circle cx="${x}" cy="${y}" r="7.5" fill="${fill}" ${ring}/>
+        <text x="${x}" y="${y + 2.8}" text-anchor="middle" fill="#000" font-family="Roboto Mono" font-size="8" font-weight="500">${g}</text>`;
+    } else {
+      gates += `<text x="${x}" y="${y + 2.8}" text-anchor="middle" fill="${onDef ? 'rgba(255,255,255,0.55)' : '#5a5b5d'}"
+        font-family="Roboto Mono" font-size="8">${g}</text>`;
+    }
   });
 
   document.getElementById('bodygraph').innerHTML =
-    `<svg viewBox="0 0 400 660" width="100%" style="max-width:440px" xmlns="http://www.w3.org/2000/svg">${lines}${shapes}</svg>`;
+    `<svg viewBox="0 0 500 755" width="100%" style="max-width:500px" xmlns="http://www.w3.org/2000/svg">${wires}${activeWires}${shapes}${gates}</svg>`;
 }
