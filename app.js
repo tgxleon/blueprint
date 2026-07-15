@@ -344,14 +344,66 @@ function channelPath(a, b) {
   return c ? `M ${x1} ${y1} Q ${c[0]} ${c[1]} ${x2} ${y2}` : `M ${x1} ${y1} L ${x2} ${y2}`;
 }
 
+// I Ching keynotes for the 64 gates
+const GATE_NAMES = {
+  1: 'Self-Expression', 2: 'Direction of the Self', 3: 'Ordering', 4: 'Formulization',
+  5: 'Fixed Rhythms', 6: 'Friction', 7: 'The Role of the Self', 8: 'Contribution',
+  9: 'Focus', 10: 'Behavior of the Self', 11: 'Ideas', 12: 'Caution',
+  13: 'The Listener', 14: 'Power Skills', 15: 'Extremes', 16: 'Skills',
+  17: 'Opinions', 18: 'Correction', 19: 'Wanting', 20: 'The Now',
+  21: 'The Hunter', 22: 'Openness', 23: 'Assimilation', 24: 'Rationalization',
+  25: 'The Spirit of the Self', 26: 'The Egoist', 27: 'Caring', 28: 'The Game Player',
+  29: 'Saying Yes', 30: 'Feelings', 31: 'Influence', 32: 'Continuity',
+  33: 'Privacy', 34: 'Power', 35: 'Change', 36: 'Crisis',
+  37: 'Friendship', 38: 'The Fighter', 39: 'Provocation', 40: 'Aloneness',
+  41: 'Contraction', 42: 'Growth', 43: 'Insight', 44: 'Alertness',
+  45: 'The Gatherer', 46: 'Determination', 47: 'Realization', 48: 'Depth',
+  49: 'Principles', 50: 'Values', 51: 'Shock', 52: 'Stillness',
+  53: 'Beginnings', 54: 'Ambition', 55: 'Spirit', 56: 'Stimulation',
+  57: 'Intuitive Clarity', 58: 'Vitality', 59: 'Intimacy', 60: 'Acceptance',
+  61: 'Mystery', 62: 'Details', 63: 'Doubt', 64: 'Confusion',
+};
+
 function drawBodygraph(chart) {
   const defined = new Set(chart.definedCenters);
   const pers = new Set(chart.personality.map(a => a.gate));
   const des = new Set(chart.design.map(a => a.gate));
   const activeChannelKeys = new Set(chart.activeChannels.map(([a, b]) => [a, b].sort((m, n) => m - n).join('-')));
 
-  // 1. All 36 channels as faint wiring; active ones highlighted
-  let wires = '', activeWires = '';
+  const planetsFor = (list, gate) => list.filter(a => a.gate === gate).map(a => `${a.planet} (line ${a.line})`).join(', ');
+  const gateTip = (gate) => {
+    const cName = C.centers[HD.GATE_CENTER[gate]][0];
+    let s = `Gate ${gate} — ${GATE_NAMES[gate]} · ${cName} center. `;
+    const p = planetsFor(chart.personality, gate), d = planetsFor(chart.design, gate);
+    if (p && d) s += `Activated in your Personality by ${p} and in your Design by ${d}.`;
+    else if (p) s += `Activated in your conscious Personality by ${p}.`;
+    else if (d) s += `Activated in your unconscious Design by ${d}.`;
+    else s += 'Not activated in your chart — you experience this theme through others who carry it.';
+    return s;
+  };
+  const channelTip = (a, b) => {
+    const key = [a, b].sort((m, n) => m - n).join('-');
+    const [nm, desc] = D.channels[`${a}-${b}`] || D.channels[`${b}-${a}`] || [`Channel ${key}`, ''];
+    const cA = C.centers[HD.GATE_CENTER[a]][0], cB = C.centers[HD.GATE_CENTER[b]][0];
+    let s = `${nm} (${a}-${b}) · ${cA} ↔ ${cB}. `;
+    if (activeChannelKeys.has(key)) s += `ACTIVE in your chart: ${desc.split('.')[0]}.`;
+    else {
+      const has = [a, b].filter(g => pers.has(g) || des.has(g));
+      if (has.length === 1) s += `You carry gate ${has[0]} of this channel (a "hanging gate") — it completes when you\'re with someone carrying gate ${has[0] === a ? b : a}.`;
+      else s += 'Dormant in your chart.';
+    }
+    return s;
+  };
+  const centerTip = (c) => {
+    const [nm, role, desc] = C.centers[c];
+    return `${nm}${nm.includes('Center') ? '' : ' center'} — ${role}. ${defined.has(c)
+      ? `Defined in your chart: you have consistent, reliable access to ${desc}.`
+      : `Open in your chart: you take in and amplify ${desc} from others — a place of sensitivity and wisdom.`}`;
+  };
+
+  // 1. All 36 channels as faint wiring; active ones highlighted.
+  //    Each gets an invisible wide twin path as the hover target.
+  let wires = '', activeWires = '', hitPaths = '';
   HD.CHANNELS.forEach(([a, b]) => {
     const d = channelPath(a, b);
     const key = [a, b].sort((m, n) => m - n).join('-');
@@ -360,16 +412,17 @@ function drawBodygraph(chart) {
     } else {
       wires += `<path d="${d}" fill="none" stroke="#2a2b2d" stroke-width="2" stroke-linecap="round"/>`;
     }
+    hitPaths += `<path class="tip" data-tip="${esc(channelTip(a, b))}" d="${d}" fill="none" stroke="rgba(0,0,0,0)" stroke-width="10" stroke-linecap="round"/>`;
   });
 
   // 2. Center shapes on top of the wiring
   let shapes = '';
   Object.entries(CENTER_SHAPES).forEach(([c, d]) => {
     const isDef = defined.has(c);
-    shapes += `<path d="${d}" fill="${isDef ? 'var(--color-iris-gleam)' : '#131416'}"
+    shapes += `<path class="tip" data-tip="${esc(centerTip(c))}" d="${d}" fill="${isDef ? 'var(--color-iris-gleam)' : '#131416'}"
       stroke="${isDef ? 'var(--color-iris-gleam)' : '#3f4041'}" stroke-width="1.5"/>`;
     const [lx, ly, anchor] = CENTER_LABELS[c];
-    shapes += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" fill="${isDef ? '#d1c9ff' : '#6a6b6b'}"
+    shapes += `<text class="tip" data-tip="${esc(centerTip(c))}" x="${lx}" y="${ly}" text-anchor="${anchor}" fill="${isDef ? '#d1c9ff' : '#6a6b6b'}"
       font-family="Roboto Mono" font-size="9" letter-spacing="1.5">${C.centers[c][0].toUpperCase()}</text>`;
   });
 
@@ -380,17 +433,19 @@ function drawBodygraph(chart) {
     const gate = Number(g);
     const inP = pers.has(gate), inD = des.has(gate);
     const onDef = defined.has(HD.GATE_CENTER[gate]);
+    const tipAttr = `class="tip" data-tip="${esc(gateTip(gate))}"`;
     if (inP || inD) {
       const fill = inP ? '#ffffff' : 'var(--color-orchid-bloom)';
       const ring = inP && inD ? `stroke="var(--color-orchid-bloom)" stroke-width="2.5"` : `stroke="none"`;
-      gates += `<circle cx="${x}" cy="${y}" r="7.5" fill="${fill}" ${ring}/>
-        <text x="${x}" y="${y + 2.8}" text-anchor="middle" fill="#000" font-family="Roboto Mono" font-size="8" font-weight="500">${g}</text>`;
+      gates += `<g ${tipAttr}><circle cx="${x}" cy="${y}" r="7.5" fill="${fill}" ${ring}/>
+        <text x="${x}" y="${y + 2.8}" text-anchor="middle" fill="#000" font-family="Roboto Mono" font-size="8" font-weight="500">${g}</text></g>`;
     } else {
-      gates += `<text x="${x}" y="${y + 2.8}" text-anchor="middle" fill="${onDef ? 'rgba(255,255,255,0.55)' : '#5a5b5d'}"
-        font-family="Roboto Mono" font-size="8">${g}</text>`;
+      gates += `<g ${tipAttr}><circle cx="${x}" cy="${y}" r="7.5" fill="rgba(0,0,0,0)"/>
+        <text x="${x}" y="${y + 2.8}" text-anchor="middle" fill="${onDef ? 'rgba(255,255,255,0.55)' : '#5a5b5d'}"
+        font-family="Roboto Mono" font-size="8">${g}</text></g>`;
     }
   });
 
   document.getElementById('bodygraph').innerHTML =
-    `<svg viewBox="0 0 500 755" width="100%" style="max-width:500px" xmlns="http://www.w3.org/2000/svg">${wires}${activeWires}${shapes}${gates}</svg>`;
+    `<svg viewBox="0 0 500 755" width="100%" style="max-width:500px" xmlns="http://www.w3.org/2000/svg">${wires}${activeWires}${shapes}${hitPaths}${gates}</svg>`;
 }

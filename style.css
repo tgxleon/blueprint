@@ -164,6 +164,7 @@ h2.display em { font-style: italic; }
   border-bottom: 1px dotted rgba(255,255,255,0.35);
   position: relative;
 }
+svg .tip { border-bottom: none; }
 .tile.inverted .tip { border-bottom-color: rgba(0,0,0,0.35); }
 #tooltip {
   position: fixed; z-index: 9999;
