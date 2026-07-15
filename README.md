@@ -2,7 +2,7 @@
 
 **Your human design, decoded.** Blueprint is a free web app that calculates your complete Human Design chart from your birth details and turns it into a comprehensive, readable report — your energy type, strategy, decision-making authority, profile, centers, and channels, plus practical guidance for applying it to daily life and tricky goals.
 
-**Live app:** deployed on Vercel · auto-deploys from `main`
+**Live app:** [blueprint-theta-pearl.vercel.app](https://blueprint-theta-pearl.vercel.app) · auto-deploys from `main`
 
 ![Type: static site](https://img.shields.io/badge/stack-vanilla%20HTML%2FCSS%2FJS-8052ff) ![No backend](https://img.shields.io/badge/backend-none-15846e) ![Privacy](https://img.shields.io/badge/birth%20data-never%20leaves%20the%20browser-ffb829)
 
